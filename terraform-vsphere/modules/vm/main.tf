@@ -46,5 +46,10 @@ resource "vsphere_virtual_machine" "vm" {
     }
   }
 
+  extra_config = {
+    "guestinfo.userdata"          = base64encode(file("${path.module}/cloud-init/user-data"))
+    "guestinfo.userdata.encoding" = "base64"
+  }
+
   wait_for_guest_net_timeout = 0
 }

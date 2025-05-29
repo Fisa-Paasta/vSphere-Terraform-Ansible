@@ -1,5 +1,5 @@
 - name: 웹서버 설치
-  hosts: web
+  hosts: webserver
   become: true
   roles:
     - webserver

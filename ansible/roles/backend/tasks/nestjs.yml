@@ -1,6 +1,6 @@
 - name: Install NestJS CLI (version {{ nestjs_versions[nestjs_selected] }})
   become: true
   npm:
-    name: @nestjs/cli
+    name: '@nestjs/cli'
     version: "{{ nestjs_versions[nestjs_selected] }}"
     global: yes
