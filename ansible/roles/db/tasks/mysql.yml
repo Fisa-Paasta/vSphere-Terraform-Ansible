@@ -1,0 +1,6 @@
+- name: Install MySQL (version {{ mysql_versions[mysql_selected] }})
+  become: true
+  apt:
+    name: "{{ mysql_versions[mysql_selected] }}"
+    state: present
+    update_cache: yes

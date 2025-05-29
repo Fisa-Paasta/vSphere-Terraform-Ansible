@@ -1,0 +1,6 @@
+- name: Install Vue CLI (version {{ vue_versions[vue_selected] }})
+  become: true
+  npm:
+    name: @vue/cli
+    version: "{{ vue_versions[vue_selected] }}"
+    global: yes

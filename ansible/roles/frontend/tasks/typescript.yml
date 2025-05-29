@@ -1,0 +1,6 @@
+- name: Install TypeScript (version {{ typescript_versions[typescript_selected] }})
+  become: true
+  npm:
+    name: typescript
+    version: "{{ typescript_versions[typescript_selected] }}"
+    global: yes

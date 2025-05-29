@@ -1,0 +1,27 @@
+- name: Install Python build dependencies
+  become: true
+  apt:
+    name:
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libncurses5-dev
+      - libffi-dev
+      - libsqlite3-dev
+      - wget
+      - curl
+      - llvm
+      - tk-dev
+    state: present
+    update_cache: yes
+
+- name: Install Python (version {{ python_versions[python_selected] }}) via pyenv
+  become: true
+  shell: |
+    curl https://pyenv.run | bash
+    export PATH="$HOME/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+    pyenv install {{ python_versions[python_selected] }}
+    pyenv global {{ python_versions[python_selected] }}
+  args:
+    executable: /bin/bash

@@ -1,0 +1,6 @@
+- name: Install Next.js CLI (version {{ next_versions[next_selected] }})
+  become: true
+  npm:
+    name: create-next-app
+    version: "{{ next_versions[next_selected] }}"
+    global: yes

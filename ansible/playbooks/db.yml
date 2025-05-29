@@ -1,0 +1,5 @@
+- name: DB 설치
+  hosts: db
+  become: true
+  roles:
+    - db

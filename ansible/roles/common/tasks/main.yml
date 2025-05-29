@@ -1,0 +1,122 @@
+- name: Disable swap immediately
+  become: true
+  command: swapoff -a
+
+- name: Comment out swap entries in /etc/fstab
+  become: true
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\sswap\s)'
+    replace: '# \1'
+    backup: yes
+
+- name: Load required kernel modules (persist)
+  become: true
+  copy:
+    dest: /etc/modules-load.d/k8s.conf
+    content: |
+      {% for mod in k8s_modules %}
+      {{ mod }}
+      {% endfor %}
+
+- name: Load kernel modules (current session)
+  become: true
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ k8s_modules }}"
+
+- name: Set sysctl parameters (persist)
+  become: true
+  copy:
+    dest: /etc/sysctl.d/k8s.conf
+    content: |
+      {% for setting in k8s_sysctl_settings %}
+      {{ setting.name }} = {{ setting.value }}
+      {% endfor %}
+
+- name: Apply sysctl settings
+  become: true
+  command: sysctl --system
+
+- name: Install required packages
+  become: true
+  apt:
+    name:
+      - containerd
+    state: present
+    update_cache: yes
+
+- name: Create containerd config directory
+  become: true
+  file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: Generate default containerd config
+  become: true
+  shell: containerd config default | tee {{ containerd_config_path }}
+  args:
+    executable: /bin/bash
+
+- name: Patch containerd config to use SystemdCgroup = true
+  become: true
+  replace:
+    path: "{{ containerd_config_path }}"
+    regexp: '^(\s*)SystemdCgroup = false'
+    replace: '\1SystemdCgroup = true'
+
+- name: Restart containerd
+  become: true
+  systemd:
+    name: containerd
+    state: restarted
+    enabled: yes
+
+- name: Install Kubernetes APT dependencies
+  become: true
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+    state: present
+    update_cache: yes
+
+- name: Create apt keyrings directory
+  become: true
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Add Kubernetes APT key
+  become: true
+  shell: curl -fsSL {{ k8s_apt_key_url }} | gpg --dearmor -o {{ k8s_apt_keyring_path }}
+  args:
+    executable: /bin/bash
+    creates: "{{ k8s_apt_keyring_path }}"
+
+- name: Add Kubernetes APT repository
+  become: true
+  copy:
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    content: "{{ k8s_repo_line }}\n"
+
+- name: Allow insecure APT repositories
+  become: true
+  copy:
+    dest: /etc/apt/apt.conf.d/99allow-insecure-repositories
+    content: "{{ k8s_allow_insecure_conf }}"
+
+- name: Update apt cache with insecure repositories allowed
+  become: true
+  apt:
+    update_cache: yes
+
+- name: Install Kubernetes tools (kubelet, kubeadm, kubectl)
+  become: true
+  apt:
+    name: "{{ k8s_packages }}"
+    state: present
+    allow_unauthenticated: true

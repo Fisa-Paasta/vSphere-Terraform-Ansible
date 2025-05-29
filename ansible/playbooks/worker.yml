@@ -1,0 +1,13 @@
+- name: worker 설정 (kubeconfig 복사)
+  hosts: workers
+  become: true
+  roles:
+    - role: worker
+      tasks_from: main
+
+- name: worker 조인
+  hosts: workers
+  become: true
+  roles:
+    - role: worker
+      tasks_from: join

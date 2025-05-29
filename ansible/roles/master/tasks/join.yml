@@ -1,0 +1,12 @@
+# - name: Set master join command
+#   set_fact:
+#     kubeadm_master_join: "{{ hostvars[groups['kubejoin'][0]].join_command.stdout }} --control-plane --certificate-key {{ hostvars[groups['kubejoin'][0]].cert_key.stdout }}"
+- name: Set master join command
+  set_fact:
+    kubeadm_master_join: "{{ join_command.stdout }} --control-plane --certificate-key {{ cert_key.stdout }}"
+
+- name: Join master to Kubernetes cluster (control-plane)
+  become: true
+  shell: "{{ kubeadm_master_join }}"
+  args:
+    executable: /bin/bash

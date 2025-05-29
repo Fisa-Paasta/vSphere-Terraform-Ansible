@@ -1,0 +1,10 @@
+- name: Install Ruby (version {{ ruby_versions[ruby_selected] }})
+  become: true
+  shell: |
+    apt-get update
+    apt-get install -y gnupg2 software-properties-common
+    apt-add-repository -y ppa:brightbox/ruby-ng
+    apt-get update
+    apt-get install -y ruby{{ ruby_versions[ruby_selected] }}
+  args:
+    executable: /bin/bash

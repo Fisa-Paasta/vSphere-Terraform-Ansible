@@ -1,0 +1,4 @@
+- name: Install Oracle Database (version {{ oracle_versions[oracle_selected] }})
+  become: true
+  debug:
+    msg: "Oracle 설치는 수동 또는 사전 패키징된 이미지 기반 설치가 필요합니다. 현재 버전 키: {{ oracle_versions[oracle_selected] }}"

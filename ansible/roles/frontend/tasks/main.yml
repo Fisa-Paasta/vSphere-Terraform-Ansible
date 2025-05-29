@@ -1,0 +1,31 @@
+- name: Install prerequisites
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - curl
+    - git
+    - build-essential
+    - nodejs
+    - npm
+
+- name: Install n (Node.js version manager)
+  become: true
+  npm:
+    name: n
+    global: yes
+
+- name: Install Node.js {{ node_version }}
+  become: true
+  shell: |
+    n {{ node_version }}
+  args:
+    executable: /bin/bash
+
+- name: Install selected frontend frameworks
+  include_tasks: "{{ item }}.yml"
+  loop: "{{ frontend_frameworks }}"
+  loop_control:
+    label: "{{ item }}"

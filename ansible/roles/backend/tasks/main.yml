@@ -1,0 +1,6 @@
+- name: Install selected backend frameworks
+  become: true
+  include_tasks: "{{ item }}.yml"
+  loop: "{{ backend_frameworks }}"
+  loop_control:
+    label: "{{ item }}"

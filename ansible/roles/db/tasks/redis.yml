@@ -1,0 +1,6 @@
+- name: Install Redis (version {{ redis_versions[redis_selected] }})
+  become: true
+  apt:
+    name: redis-server
+    state: present
+    update_cache: yes

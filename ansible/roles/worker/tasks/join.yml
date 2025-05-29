@@ -1,0 +1,12 @@
+# - name: Set worker join command
+#   set_fact:
+#     kubeadm_worker_join: "{{ hostvars[groups['kubejoin'][0]].join_command.stdout }}"
+- name: Set worker join command
+  set_fact:
+    kubeadm_worker_join: "{{ join_command.stdout }}"
+
+- name: Join worker to Kubernetes cluster
+  become: true
+  shell: "{{ kubeadm_worker_join }}"
+  args:
+    executable: /bin/bash

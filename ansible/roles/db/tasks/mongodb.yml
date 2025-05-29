@@ -1,0 +1,9 @@
+- name: Install MongoDB (version {{ mongodb_versions[mongodb_selected] }})
+  become: true
+  shell: |
+    curl -fsSL https://pgp.mongodb.com/server-{{ mongodb_versions[mongodb_selected] }}.asc | gpg --dearmor -o /usr/share/keyrings/mongodb.gpg
+    echo "deb [signed-by=/usr/share/keyrings/mongodb.gpg] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/{{ mongodb_versions[mongodb_selected] }} multiverse" > /etc/apt/sources.list.d/mongodb-org.list
+    apt-get update
+    apt-get install -y mongodb-org
+  args:
+    executable: /bin/bash

@@ -1,0 +1,95 @@
+backend_frameworks:
+  - java
+  - nodejs
+  - python
+  - go
+  - ruby
+  - springboot
+  - express
+  - nestjs
+  - django
+  - flask
+  - fiber
+  - gin
+  - echo
+  - rails
+
+# 사용자가 선택한 버전 키
+java_selected: "openjdk21"
+nodejs_selected: "v20"
+python_selected: "3.11"
+go_selected: "1.21"
+ruby_selected: "3.3"
+spring_selected: "3.2.6"
+express_selected: "4.18.2"
+nestjs_selected: "10.0.0"
+django_selected: "4.2.7"
+flask_selected: "2.3.3"
+fiber_selected: "2.49.0"
+gin_selected: "1.9.1"
+echo_selected: "4.11.1"
+rails_selected: "7.1.3"
+
+# 실제 설치 버전 (Map)
+java_versions:
+  "openjdk11": "openjdk-11-jdk"
+  "openjdk17": "openjdk-17-jdk"
+  "openjdk21": "openjdk-21-jdk"
+
+nodejs_versions:
+  "v20": "20"
+  "v22": "22"
+  "v23": "23"
+
+python_versions:
+  "3.12": "3.12"
+  "3.11": "3.11"
+  "3.10": "3.10"
+
+go_versions:
+  "1.23": "1.23.9"
+  "1.24": "1.24.3"
+  "1.21": "1.21.7"
+
+ruby_versions:
+  "3.2": "3.2.8"
+  "3.3": "3.3.8"
+  "3.4": "3.4.3"
+
+spring_versions:
+  "2.7": "2.7"
+  "3.0": "3.0"
+  "3.1": "3.1"
+
+express_versions:
+  "4.17.1": "4.17.1"
+  "4.18.1": "4.18.1"
+  "4.18.2": "4.18.2"
+
+nestjs_versions:
+  "9": "9.0.0"
+  "10": "10.0.0"
+
+django_versions:
+  "3.2": "3.2"
+  "4.0": "4.0"
+
+flask_versions:
+  "1.1": "1.1"
+  "2.0": "2.0"
+
+fiber_versions:
+  "2.50": "2.50"
+  "2.60": "2.60"
+
+gin_versions:
+  "1.8": "1.8"
+  "1.9": "1.9"
+
+echo_versions:
+  "4.9": "4.9"
+  "5.0": "5.0"
+
+rails_versions:
+  "6.1": "6.1"
+  "7.0": "7.0"

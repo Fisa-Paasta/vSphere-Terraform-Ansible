@@ -1,0 +1,12 @@
+- name: Install Nginx (version {{ nginx_versions[nginx_selected] }})
+  become: true
+  shell: |
+    apt-get update
+    apt-get install -y curl gnupg2 ca-certificates lsb-release
+    curl https://nginx.org/keys/nginx_signing.key | apt-key add -
+    echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
+      > /etc/apt/sources.list.d/nginx.list
+    apt-get update
+    apt-get install -y nginx={{ nginx_versions[nginx_selected] }}
+  args:
+    executable: /bin/bash

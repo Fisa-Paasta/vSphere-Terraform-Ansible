@@ -1,0 +1,6 @@
+- name: Install Vite (version {{ vite_versions[vite_selected] }})
+  become: true
+  npm:
+    name: vite
+    version: "{{ vite_versions[vite_selected] }}"
+    global: yes

@@ -1,0 +1,7 @@
+- name: Install sdkman and Spring Boot CLI (version {{ spring_versions[spring_selected] }})
+  become: true
+  shell: |
+    curl -s "https://get.sdkman.io" | bash
+    bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install springboot {{ spring_versions[spring_selected] }}"
+  args:
+    executable: /bin/bash

@@ -1,0 +1,26 @@
+- name: Set list of masters
+  set_fact:
+    masters: "{{ groups['masters'] }}"
+
+- name: Ping each master to find a live one
+  shell: ping -c 1 {{ item }}
+  register: ping_results
+  with_items: "{{ masters }}"
+  ignore_errors: true
+
+- name: Set first alive master
+  set_fact:
+    first_alive_master: "{{ item.item }}"
+  when: item.rc == 0 and first_alive_master is not defined
+  with_items: "{{ ping_results.results }}"
+
+- name: Get kubeadm worker join command
+  delegate_to: "{{ first_alive_master }}"
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+- name: Get kubeadm certificate key (for control-plane join)
+  delegate_to: "{{ first_alive_master }}"
+  shell: |
+    kubeadm init phase upload-certs --upload-certs | grep -A 1 "certificate key" | tail -n 1
+  register: cert_key

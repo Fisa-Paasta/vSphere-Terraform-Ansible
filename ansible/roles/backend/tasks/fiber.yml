@@ -1,0 +1,6 @@
+- name: Install Go Fiber (version {{ fiber_versions[fiber_selected] }})
+  become: true
+  shell: |
+    go install github.com/gofiber/fiber/v2@{{ fiber_versions[fiber_selected] }}
+  args:
+    executable: /bin/bash

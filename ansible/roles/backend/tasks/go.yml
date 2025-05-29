@@ -1,0 +1,9 @@
+- name: Install Go (version {{ go_versions[go_selected] }})
+  become: true
+  shell: |
+    wget https://golang.org/dl/go{{ go_versions[go_selected] }}.linux-amd64.tar.gz
+    rm -rf /usr/local/go
+    tar -C /usr/local -xzf go{{ go_versions[go_selected] }}.linux-amd64.tar.gz
+    ln -sf /usr/local/go/bin/go /usr/bin/go
+  args:
+    executable: /bin/bash

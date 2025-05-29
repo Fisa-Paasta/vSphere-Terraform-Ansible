@@ -1,0 +1,9 @@
+- name: Install Cassandra (version {{ cassandra_versions[cassandra_selected] }})
+  become: true
+  shell: |
+    echo "deb https://downloads.apache.org/cassandra/debian 311x main" > /etc/apt/sources.list.d/cassandra.list
+    curl https://downloads.apache.org/cassandra/KEYS | apt-key add -
+    apt-get update
+    apt-get install -y cassandra
+  args:
+    executable: /bin/bash

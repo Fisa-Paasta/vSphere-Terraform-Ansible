@@ -1,0 +1,6 @@
+- name: Install React (version {{ react_versions[react_selected] }})
+  become: true
+  npm:
+    name: create-react-app
+    version: "{{ react_versions[react_selected] }}"
+    global: yes

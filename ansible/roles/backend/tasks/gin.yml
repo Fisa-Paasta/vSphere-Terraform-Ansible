@@ -1,0 +1,6 @@
+- name: Install Go Gin (version {{ gin_versions[gin_selected] }})
+  become: true
+  shell: |
+    go install github.com/gin-gonic/gin@{{ gin_versions[gin_selected] }}
+  args:
+    executable: /bin/bash

@@ -1,0 +1,32 @@
+# group_vars/all.yml
+
+# 공통적으로 로드할 커널 모듈
+k8s_modules:
+  - overlay
+  - br_netfilter
+
+# sysctl 설정 값
+k8s_sysctl_settings:
+  - { name: "net.bridge.bridge-nf-call-iptables", value: 1 }
+  - { name: "net.bridge.bridge-nf-call-ip6tables", value: 1 }
+  - { name: "net.ipv4.ip_forward", value: 1 }
+
+# containerd config 경로
+containerd_config_path: "/etc/containerd/config.toml"
+
+# Kubernetes APT key 및 repo 설정
+k8s_apt_key_url: "https://pkgs.k8s.io/core:/stable:/v1.27/deb/Release.key"
+k8s_apt_keyring_path: "/etc/apt/keyrings/kubernetes-apt-keyring.gpg"
+k8s_repo_line: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.27/deb/ /"
+
+# insecure repository 허용 설정 내용
+k8s_allow_insecure_conf: |
+  APT::Get::AllowUnauthenticated "true";
+  Acquire::AllowInsecureRepositories "true";
+  Acquire::AllowDowngradeToInsecureRepositories "true";
+
+# 설치할 k8s 구성 요소
+k8s_packages:
+  - kubelet
+  - kubeadm
+  - kubectl

@@ -1,0 +1,16 @@
+- name: Prepare .kube directory
+  become: true
+  file:
+    path: /root/.kube
+    state: directory
+    mode: '0700'
+
+- name: Copy kubeconfig from alive master
+  become: true
+  shell: |
+    scp -o StrictHostKeyChecking=no root@{{ hostvars[groups['kubejoin'][0]].first_alive_master }}:/etc/kubernetes/admin.conf /root/.kube/config
+  args:
+    executable: /bin/bash
+
+- name: Join worker to Kubernetes cluster
+  import_tasks: join.yml

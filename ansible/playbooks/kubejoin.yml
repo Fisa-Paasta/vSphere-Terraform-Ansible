@@ -1,0 +1,5 @@
+- name: join command 추출 (kubejoin)
+  hosts: kubejoin
+  gather_facts: false
+  roles:
+    - kubejoin

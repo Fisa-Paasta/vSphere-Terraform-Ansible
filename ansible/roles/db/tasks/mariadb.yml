@@ -1,0 +1,6 @@
+- name: Install MariaDB (version {{ mariadb_versions[mariadb_selected] }})
+  become: true
+  apt:
+    name: "{{ mariadb_versions[mariadb_selected] }}"
+    state: present
+    update_cache: yes

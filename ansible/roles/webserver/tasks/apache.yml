@@ -1,0 +1,6 @@
+- name: Install Apache HTTP Server (version {{ apache_versions[apache_selected] }})
+  become: true
+  apt:
+    name: apache2
+    state: present
+    update_cache: yes

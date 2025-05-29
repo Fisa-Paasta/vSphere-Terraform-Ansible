@@ -1,0 +1,6 @@
+- name: Install selected web servers
+  become: true
+  include_tasks: "{{ item }}.yml"
+  loop: "{{ webserver_servers }}"
+  loop_control:
+    label: "{{ item }}"

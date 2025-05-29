@@ -1,0 +1,8 @@
+- name: Install Tomcat (version {{ tomcat_versions[tomcat_selected] }})
+  become: true
+  shell: |
+    mkdir -p /opt/tomcat
+    wget https://downloads.apache.org/tomcat/tomcat-{{ tomcat_selected | regex_replace('\\..*$', '') }}/v{{ tomcat_versions[tomcat_selected] }}/bin/apache-tomcat-{{ tomcat_versions[tomcat_selected] }}.tar.gz
+    tar xzf apache-tomcat-{{ tomcat_versions[tomcat_selected] }}.tar.gz -C /opt/tomcat --strip-components=1
+  args:
+    executable: /bin/bash

@@ -1,0 +1,6 @@
+- name: Install Java (version {{ java_versions[java_selected] }})
+  become: true
+  apt:
+    name: "{{ java_versions[java_selected] }}"
+    state: present
+    update_cache: yes

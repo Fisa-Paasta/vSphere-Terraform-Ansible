@@ -1,0 +1,6 @@
+- name: Install Express CLI (version {{ express_versions[express_selected] }})
+  become: true
+  npm:
+    name: express-generator
+    version: "{{ express_versions[express_selected] }}"
+    global: yes

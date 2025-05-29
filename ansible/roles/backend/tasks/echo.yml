@@ -1,0 +1,6 @@
+- name: Install Go Echo (version {{ echo_versions[echo_selected] }})
+  become: true
+  shell: |
+    go install github.com/labstack/echo/v4@{{ echo_versions[echo_selected] }}
+  args:
+    executable: /bin/bash

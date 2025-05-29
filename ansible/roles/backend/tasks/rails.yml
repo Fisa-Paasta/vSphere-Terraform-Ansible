@@ -1,0 +1,6 @@
+- name: Install Ruby on Rails (version {{ rails_versions[rails_selected] }})
+  become: true
+  gem:
+    name: rails
+    version: "{{ rails_versions[rails_selected] }}"
+    state: present

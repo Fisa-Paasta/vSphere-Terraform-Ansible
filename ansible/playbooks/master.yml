@@ -1,0 +1,13 @@
+- name: master 설정 (kubeconfig 복사)
+  hosts: masters
+  become: true
+  roles:
+    - role: master
+      tasks_from: main
+
+- name: master 조인
+  hosts: masters
+  become: true
+  roles:
+    - role: master
+      tasks_from: join

@@ -1,0 +1,7 @@
+- name: Install Elasticsearch (version {{ elasticsearch_versions[elasticsearch_selected] }})
+  become: true
+  shell: |
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-{{ elasticsearch_versions[elasticsearch_selected] }}-amd64.deb
+    dpkg -i elasticsearch-{{ elasticsearch_versions[elasticsearch_selected] }}-amd64.deb
+  args:
+    executable: /bin/bash

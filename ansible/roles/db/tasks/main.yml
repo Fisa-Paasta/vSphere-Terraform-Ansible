@@ -1,0 +1,6 @@
+- name: Install selected databases
+  become: true
+  include_tasks: "{{ item }}.yml"
+  loop: "{{ databases }}"
+  loop_control:
+    label: "{{ item }}"

@@ -1,0 +1,5 @@
+- name: Install Django (version {{ django_versions[django_selected] }})
+  become: true
+  pip:
+    name: django
+    version: "{{ django_versions[django_selected] }}"

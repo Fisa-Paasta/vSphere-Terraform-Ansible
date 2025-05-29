@@ -1,0 +1,45 @@
+frontend_frameworks:
+  - react
+  - vue
+  - angular
+  - next
+  - vite
+  - typescript
+
+node_version: "18.18.2"
+
+# 프레임워크별 설치할 버전 선택 (key 기준)
+react_selected: "v19"
+vue_selected: "v3.5.13"
+angular_selected: "v19.2.9"
+next_selected: "v15.3.0"
+vite_selected: "v5.2.7"
+typescript_selected: "v5.3.3"
+
+# 실제 버전 값 (Map 구조)
+react_versions:
+  "v19": "19.1.0"
+  "v18": "18.3.1"
+  "v17": "17.0.2"
+
+vue_versions:
+  "v3.5.13": "3.5.13"
+  "v3.5.0": "3.5.0"
+
+angular_versions:
+  "v19.2.9": "19.2.9"
+  "v19.2.0": "19.2.0"
+
+next_versions:
+  "v15.3.0": "15.3.0"
+  "v14.2.0": "14.2.0"
+
+vite_versions:
+  "v5.2.7": "5.2.7"
+  "v5.0.0": "5.0.0"
+  "v4.5.2": "4.5.2"
+
+typescript_versions:
+  "v5.4.5": "5.4.5"
+  "v5.3.3": "5.3.3"
+  "v4.9.5": "4.9.5"
