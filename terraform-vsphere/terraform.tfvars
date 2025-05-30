@@ -13,7 +13,7 @@ datacenter_worker = "Fisa_ce_Datacenter"
 resource_pool_name = "Paasta-RS"
 
 //template_master = ""
-template_worker = "Ubuntu24042"
+template_worker = "Ubuntu24042ver3"
 
 datastore_master = "Master2-DS"
 datastore_worker = "Datastore"

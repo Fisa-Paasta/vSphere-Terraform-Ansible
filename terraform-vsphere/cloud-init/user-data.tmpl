@@ -7,6 +7,8 @@ users:
   - name: ubuntu
     groups: sudo
     shell: /bin/bash
+    lock_passwd: false
+    plain_text_passwd: "ubuntu"
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh-authorized-keys:
       - ${ssh_key}

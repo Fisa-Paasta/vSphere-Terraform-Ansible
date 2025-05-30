@@ -40,12 +40,14 @@ resource "vsphere_virtual_machine" "vm" {
     }))
     "guestinfo.userdata.encoding" = "base64"
 
-    "guestinfo.networkconfig" = base64encode(templatefile("${path.module}/../../cloud-init/network-config.tmpl", {
+    "guestinfo.metadata" = base64encode(templatefile("${path.module}/../../cloud-init/metadata.tmpl", {
+      hostname   = var.vm_name
       ip_address = var.ip_address
       gateway    = var.gateway
     }))
-    "guestinfo.networkconfig.encoding" = "base64"
+    "guestinfo.metadata.encoding" = "base64"
   }
+
 
   wait_for_guest_net_timeout = 60
 }
