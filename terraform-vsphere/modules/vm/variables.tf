@@ -6,6 +6,10 @@ variable "ip_address" {
   type = string
 }
 
+variable "gateway" {
+  type = string
+}
+
 variable "host_system_id" {
   type = string
   default = null
@@ -33,4 +37,8 @@ variable "cpu" {
 
 variable "memory" {
   type = number
+}
+
+variable "ssh_key" {
+  type = string
 }

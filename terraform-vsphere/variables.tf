@@ -22,13 +22,13 @@ variable "resource_pool_name" {
   type = string
 }
 
-variable "cluster" {
-  type = string
-}
+# variable "cluster" {
+#   type = string
+# }
 
-variable "template_master" {
-  type = string
-}
+# variable "template_master" {
+#   type = string
+# }
 
 variable "template_worker" {
   type = string
@@ -50,6 +50,10 @@ variable "network_worker" {
   type = string
 }
 
+variable "gateway" {
+  type    = string
+}
+
 variable "esxi_100" {
   type = string
 }
@@ -57,7 +61,9 @@ variable "esxi_101" {
   type = string
 }
 
-variable "ssh_public_key" {}
+variable "ssh_key" {
+  type = string
+}
 
 # VM 설정
 variable "master_vms" {

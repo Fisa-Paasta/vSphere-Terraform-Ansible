@@ -1,7 +1,7 @@
 output "master_ips" {
-  value = { for vm in vsphere_virtual_machine.master : vm.name => vm.default_ip_address }
+  value = { for k, v in module.masters : k => v.ip }
 }
 
 output "worker_ips" {
-  value = { for vm in vsphere_virtual_machine.worker : vm.name => vm.default_ip_address }
+  value = { for k, v in module.workers : k => v.ip }
 }
