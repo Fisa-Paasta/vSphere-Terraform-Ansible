@@ -1,6 +1,23 @@
-- name: Install PostgreSQL (version {{ postgresql_versions[postgresql_selected] }})
+- name: Add PostgreSQL APT repository
+  apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+    filename: "pgdg"
   become: true
+
+- name: Add PostgreSQL GPG key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+  become: true
+
+- name: Update APT cache after adding PostgreSQL repo
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install PostgreSQL {{ postgresql_selected }} ({{ postgresql_versions[postgresql_selected] }})
   apt:
     name: "{{ postgresql_versions[postgresql_selected] }}"
     state: present
-    update_cache: yes
+  become: true

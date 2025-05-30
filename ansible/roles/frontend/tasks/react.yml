@@ -1,6 +1,28 @@
-- name: Install React (version {{ react_versions[react_selected] }})
-  become: true
-  npm:
+---
+- name: Install create-react-app globally (v5.0.1)
+  community.general.npm:
     name: create-react-app
-    version: "{{ react_versions[react_selected] }}"
-    global: yes
+    version: "5.0.1"
+    global: true
+    state: present
+
+- name: Create React project using create-react-app
+  shell: |
+    npx create-react-app my-react-app --use-npm
+  args:
+    creates: /home/ubuntu/my-react-app
+  become: false
+
+- name: Install react version {{ react_versions[react_selected] }}
+  community.general.npm:
+    name: "react@{{ react_versions[react_selected] }}"
+    path: /home/ubuntu/my-react-app
+    state: present
+  when: react_selected is defined
+
+- name: Install react-dom version {{ react_versions[react_selected] }}
+  community.general.npm:
+    name: "react-dom@{{ react_versions[react_selected] }}"
+    path: /home/ubuntu/my-react-app
+    state: present
+  when: react_selected is defined

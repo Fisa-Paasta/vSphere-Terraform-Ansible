@@ -1,5 +1,5 @@
 - name: Install selected databases
   include_tasks: "{{ item }}.yml"
-  loop: "{{ databases }}"
+  loop: "{{ db_engines }}"
   loop_control:
     label: "{{ item }}"

@@ -1,6 +1,6 @@
 - name: Install Angular CLI (version {{ angular_versions[angular_selected] }})
   become: true
   npm:
-    name: @angular/cli
+    name: "@angular/cli"
     version: "{{ angular_versions[angular_selected] }}"
     global: yes

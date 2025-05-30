@@ -1,6 +1,20 @@
-- name: Install Vue CLI (version {{ vue_versions[vue_selected] }})
-  become: true
-  npm:
-    name: @vue/cli
-    version: "{{ vue_versions[vue_selected] }}"
-    global: yes
+- name: Install Vue CLI globally (v{{ vue_cli_version }})
+  community.general.npm:
+    name: "@vue/cli"
+    version: "{{ vue_cli_version }}"
+    global: true
+    state: present
+
+- name: Create Vue project
+  shell: |
+    vue create my-vue-app --default --packageManager npm --no-git --skipGetStarted
+  args:
+    creates: /home/ubuntu/my-vue-app
+  become: false
+
+- name: Install vue version {{ vue_versions[vue_selected] }}
+  community.general.npm:
+    name: "vue@{{ vue_versions[vue_selected] }}"
+    path: /home/ubuntu/my-vue-app
+    state: present
+  when: vue_selected is defined

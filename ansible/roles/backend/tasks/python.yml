@@ -15,13 +15,32 @@
     state: present
     update_cache: yes
 
-- name: Install Python (version {{ python_versions[python_selected] }}) via pyenv
-  become: true
+- name: Install pyenv (if not already installed)
+  become: false
   shell: |
-    curl https://pyenv.run | bash
+    if [ ! -d "$HOME/.pyenv" ]; then
+      curl https://pyenv.run | bash
+    fi
+  args:
+    executable: /bin/bash
+
+- name: Ensure pyenv init in .bashrc
+  become: false
+  lineinfile:
+    path: ~/.bashrc
+    line: |
+      export PATH="$HOME/.pyenv/bin:$PATH" && eval "$(pyenv init -)" && eval "$(pyenv virtualenv-init -)"
+    create: yes
+    state: present
+    insertafter: EOF
+
+- name: Install Python {{ python_versions[python_selected] }} via pyenv
+  become: false
+  shell: |
     export PATH="$HOME/.pyenv/bin:$PATH"
     eval "$(pyenv init -)"
-    pyenv install {{ python_versions[python_selected] }}
+    eval "$(pyenv virtualenv-init -)"
+    pyenv install -s {{ python_versions[python_selected] }}
     pyenv global {{ python_versions[python_selected] }}
   args:
     executable: /bin/bash

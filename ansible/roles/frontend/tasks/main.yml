@@ -1,31 +1,33 @@
-- name: Install prerequisites
-  become: true
-  apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: yes
-  loop:
-    - curl
-    - git
-    - build-essential
-    - nodejs
-    - npm
+---
+- name: Set Node.js version
+  set_fact:
+    node_version: "{{ nodejs_versions[nodejs_selected] }}"
+  when: nodejs_selected is defined
 
-- name: Install n (Node.js version manager)
-  become: true
-  npm:
-    name: n
-    global: yes
+- name: Install curl
+  apt:
+    name: curl
+    state: present
+    update_cache: true
+
+- name: Add Node.js {{ node_version }} repository
+  shell: curl -fsSL https://deb.nodesource.com/setup_{{ node_version }}.x | bash -
+  when: node_version is defined
 
 - name: Install Node.js {{ node_version }}
-  become: true
-  shell: |
-    n {{ node_version }}
-  args:
-    executable: /bin/bash
+  apt:
+    name: nodejs
+    state: present
+  when: node_version is defined
+
+- name: Install npm (if not present)
+  apt:
+    name: npm
+    state: present
 
 - name: Install selected frontend frameworks
   include_tasks: "{{ item }}.yml"
   loop: "{{ frontend_frameworks }}"
   loop_control:
     label: "{{ item }}"
+  when: item in frontend_frameworks

@@ -1,5 +1,86 @@
+# - name: 프론트엔드 설치
+#   hosts: frontend
+#   become: true
+#   roles:
+#     - frontend
+
 - name: 프론트엔드 설치
   hosts: frontend
   become: true
+
+  pre_tasks:
+    - name: Add react if selected
+      set_fact:
+        frontend_frameworks: "{{ (frontend_frameworks | default([])) + ['react'] }}"
+      when: react_selected is defined
+
+    - name: Add vue if selected
+      set_fact:
+        frontend_frameworks: "{{ (frontend_frameworks | default([])) + ['vue'] }}"
+      when: vue_selected is defined
+
+    - name: Add angular if selected
+      set_fact:
+        frontend_frameworks: "{{ (frontend_frameworks | default([])) + ['angular'] }}"
+      when: angular_selected is defined
+
+    - name: Add nextjs if selected
+      set_fact:
+        frontend_frameworks: "{{ (frontend_frameworks | default([])) + ['nextjs'] }}"
+      when: nextjs_selected is defined
+
+    - name: Add vite if selected
+      set_fact:
+        frontend_frameworks: "{{ (frontend_frameworks | default([])) + ['vite'] }}"
+      when: vite_selected is defined
+
+    - name: Add typescript if selected
+      set_fact:
+        frontend_frameworks: "{{ (frontend_frameworks | default([])) + ['typescript'] }}"
+      when: typescript_selected is defined
+
+  vars:
+    react_selected: "v19"
+    vue_selected: "v3.5.13"
+    angular_selected: "v19.2.9"
+    nextjs_selected: "v15.3.0"
+    vite_selected: "v5.2.7"
+    typescript_selected: "v5.4.5"
+    nodejs_selected: "v20"
+    
+    nodejs_versions:
+      "v20": "20"
+      "v22": "22"
+      "v23": "23"
+
+    react_versions:
+      "v17": "17.0.2"
+      "v18": "18.3.1"
+      "v19": "19.1.0"
+
+    vue_cli_version: "5.0.8"
+
+    vue_versions:
+      "v3.5.0": "3.5.0"
+      "v3.5.13": "3.5.13"
+
+    angular_versions:
+      "v19.2.0": "19.2.0"
+      "v19.2.9": "19.2.9"
+
+    nextjs_versions:
+      "v14.2.0": "14.2.0"
+      "v15.3.0": "15.3.0"
+
+    vite_versions:
+      "v4.5.2": "4.5.2"
+      "v5.0.0": "5.0.0"
+      "v5.2.7": "5.2.7"
+
+    typescript_versions:
+      "v4.9.5": "4.9.5"
+      "v5.3.3": "5.3.3"
+      "v5.4.5": "5.4.5"
+
   roles:
     - frontend

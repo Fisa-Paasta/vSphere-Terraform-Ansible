@@ -1,5 +1,89 @@
 - name: DB 설치
   hosts: dbserver
   become: true
+
+  pre_tasks:
+    - name: Add MySQL if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['mysql'] }}"
+      when: mysql_selected is defined
+
+    - name: Add PostgreSQL if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['postgresql'] }}"
+      when: postgresql_selected is defined
+
+    - name: Add MariaDB if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['mariadb'] }}"
+      when: mariadb_selected is defined
+
+    - name: Add Oracle if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['oracle'] }}"
+      when: oracle_selected is defined
+
+    - name: Add MongoDB if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['mongodb'] }}"
+      when: mongodb_selected is defined
+
+    - name: Add Redis if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['redis'] }}"
+      when: redis_selected is defined
+
+    - name: Add Elasticsearch if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['elasticsearch'] }}"
+      when: elasticsearch_selected is defined
+
+    - name: Add Cassandra if selected
+      set_fact:
+        db_engines: "{{ (db_engines | default([])) + ['cassandra'] }}"
+      when: cassandra_selected is defined
+
+  vars:
+    mysql_selected: "8.0"
+    postgresql_selected: "15"
+    mariadb_selected: "10.6"
+    oracle_selected: "21c"
+    mongodb_selected: "6.0"
+    redis_selected: "7.0"
+    elasticsearch_selected: "8.11"
+    cassandra_selected: "4.1"
+
+    mysql_versions:
+      "8.0": "mysql-server-8.0"
+      "5.7": "mysql-server-5.7"
+
+    postgresql_versions:
+      "15": "postgresql-15"
+      "14": "postgresql-14"
+
+    mariadb_versions:
+      "10.6": "mariadb-server-10.6"
+      "10.5": "mariadb-server-10.5"
+
+    oracle_versions:
+      "21c": "oracle-database-ee-21c"
+      "19c": "oracle-database-ee-19c"
+
+    mongodb_versions:
+      "6.0": "6.0"
+      "5.0": "5.0"
+
+    redis_versions:
+      "7.0": "7.0"
+      "6.2": "6.2"
+
+    elasticsearch_versions:
+      "8.11": "8.11.1"
+      "7.17": "7.17.13"
+
+    cassandra_versions:
+      "4.1": "4.1.3"
+      "3.11": "3.11.16"
+
   roles:
     - db
