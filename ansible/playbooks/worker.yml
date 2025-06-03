@@ -8,6 +8,7 @@
 - name: worker 조인
   hosts: workers
   become: true
-  roles:
-    - role: worker
-      tasks_from: join
+  tasks:
+    - import_role:
+        name: worker
+        tasks_from: join

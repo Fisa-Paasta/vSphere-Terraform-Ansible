@@ -1,16 +1,48 @@
-- name: Prepare .kube directory
-  become: true
+- name: Get current user home directory
+  command: getent passwd "{{ ansible_user }}"
+  register: user_info
+  changed_when: false
+
+- name: Extract home directory
+  set_fact:
+    user_home: "{{ user_info.stdout.split(':')[-2] }}"
+
+- name: Create .kube directory
   file:
-    path: /root/.kube
+    path: "{{ user_home }}/.kube"
     state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: '0700'
 
-- name: Copy kubeconfig from alive master
+- name: Check if SSH key already exists on master
+  stat:
+    path: "/home/{{ ansible_user }}/.ssh/id_rsa.pub"
+  register: ssh_key_stat
+
+- name: Generate SSH key on master if not exists
   become: true
+  become_user: "{{ ansible_user }}"
   shell: |
-    scp -o StrictHostKeyChecking=no root@{{ hostvars[groups['kubejoin'][0]].first_alive_master }}:/etc/kubernetes/admin.conf /root/.kube/config
+    ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+  when: not ssh_key_stat.stat.exists
+
+- name: Read public key from master
+  slurp:
+    src: "/home/{{ ansible_user }}/.ssh/id_rsa.pub"
+  register: pubkey
+
+- name: Install master's public key to master ubuntu user
+  delegate_to: "{{ hostvars[first_alive_master].inventory_hostname }}"
+  become: true
+  authorized_key:
+    user: ubuntu
+    key: "{{ pubkey.content | b64decode }}"
+    state: present
+
+- name: Copy kubeconfig from master ubuntu home
+  become_user: "{{ ansible_user }}"
+  shell: >
+    scp -o StrictHostKeyChecking=no ubuntu@{{ hostvars[first_alive_master].ansible_host }}:/home/ubuntu/.kube/config {{ user_home }}/.kube/config
   args:
     executable: /bin/bash
-
-- name: Join worker to Kubernetes cluster
-  import_tasks: join.yml
