@@ -1,0 +1,95 @@
+- name: Initialize Kubernetes master node
+  command: >
+    kubeadm init \
+    --kubernetes-version={{ kube_version }} \
+    --control-plane-endpoint="{{ api_endpoint }}:{{ service_port }}" \
+    --pod-network-cidr={{ pod_cidr }} \
+    --upload-certs
+  args:
+    creates: /etc/kubernetes/admin.conf
+
+- name: Create .kube directory for current user
+  file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: '0700'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Copy kubeconfig to user home
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: yes
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'
+
+- name: Install Helm
+  shell: curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    executable: /bin/bash
+
+- name: Get latest Cilium CLI version
+  shell: curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt
+  register: cilium_cli_version
+
+- name: Set CLI architecture
+  set_fact:
+    cli_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
+- name: Download Cilium CLI
+  shell: >
+    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_version.stdout }}/cilium-linux-{{ cli_arch }}.tar.gz{,.sha256sum}
+  args:
+    executable: /bin/bash
+
+- name: Verify Cilium CLI checksum
+  shell: sha256sum --check cilium-linux-{{ cli_arch }}.tar.gz.sha256sum
+  args:
+    chdir: "/home/{{ ansible_user }}"
+
+- name: Extract and install Cilium CLI
+  unarchive:
+    src: "/home/{{ ansible_user }}/cilium-linux-{{ cli_arch }}.tar.gz"
+    dest: /usr/local/bin
+    remote_src: yes
+    extra_opts: ["--strip-components=0"]
+
+- name: Clean up Cilium CLI archive
+  file:
+    path: "/home/{{ ansible_user }}/cilium-linux-{{ cli_arch }}.tar.gz"
+    state: absent
+
+- name: Clean up Cilium CLI checksum
+  file:
+    path: "/home/{{ ansible_user }}/cilium-linux-{{ cli_arch }}.tar.gz.sha256sum"
+    state: absent
+
+- name: Add Cilium Helm repository
+  command: helm repo add cilium https://helm.cilium.io/
+  become_user: "{{ ansible_user }}"
+
+- name: Update Helm repositories
+  command: helm repo update
+  become_user: "{{ ansible_user }}"
+  
+- name: Install Cilium CNI with Helm
+  command: >
+    helm install cilium cilium/cilium \
+    --version 1.16.3 \
+    --namespace kube-system \
+    --set k8sServiceHost={{ api_endpoint }} \
+    --set k8sServicePort={{ service_port }} \
+    --set kubeProxyReplacement=true \
+    --set kubeProxyReplacementStrict=true \
+    --set ipam.mode=kubernetes \
+    --set routingMode=native \
+    --set ipv4NativeRoutingCIDR="{{ pod_cidr }}" \
+    --set hubble.enabled=true \
+    --set hubble.ui.enabled=true \
+    --set hubble.relay.enabled=true \
+    --set hubble.metrics.enableOpenMetrics=true \
+    --set hubble.metrics.enabled="{dns:query;ignoreAAAA,drop,tcp,flow,port-distribution,icmp,httpV2:exemplars=true;labelsContext=source_ip,source_namespace,source_workload,destination_ip,destination_namespace,destination_workload,traffic_direction}" \
+    --set waitForNodeInit=true
+  become_user: "{{ ansible_user }}"

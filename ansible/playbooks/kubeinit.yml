@@ -1,0 +1,10 @@
+- name: Initialize Kubernetes Cluster on First Master Node
+  hosts: first_master
+  become: true
+  vars:
+    kube_version: stable
+    pod_cidr: "192.168.0.0/16"
+    api_endpoint: "{{ hostvars[inventory_hostname].ansible_host }}"
+    service_port: 6443
+  roles:
+    - kubeinit
