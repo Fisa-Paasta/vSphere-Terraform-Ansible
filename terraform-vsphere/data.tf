@@ -26,10 +26,10 @@ data "vsphere_host" "esxi_101" {
 }
 
 # 템플릿
-# data "vsphere_virtual_machine" "master_template" {
-#   name          = var.template_master
-#   datacenter_id = data.vsphere_datacenter.master_dc.id
-# }
+data "vsphere_virtual_machine" "master_template" {
+  name          = var.template_master
+  datacenter_id = data.vsphere_datacenter.master_dc.id
+}
 
 data "vsphere_virtual_machine" "worker_template" {
   name          = var.template_worker

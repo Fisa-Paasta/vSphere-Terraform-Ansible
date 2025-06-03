@@ -12,10 +12,10 @@ datacenter_master = "Paasta-DC"
 datacenter_worker = "Fisa_ce_Datacenter"
 resource_pool_name = "Paasta-RS"
 
-//template_master = ""
+template_master = "MasterTemplateVM"
 template_worker = "Ubuntu24042ver3"
 
-datastore_master = "Master2-DS"
+datastore_master = "Master-DS"
 datastore_worker = "Datastore"
 
 network_master = "VM Network"
@@ -27,11 +27,11 @@ ssh_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCqgU+VhkzqJ80y1x+IWzdsoNGfUgmdV
 
 # 마스터 추가 배포 (ESXi 호스트별로)
 master_vms = {
-  # "master6" = { ip = "10.8.0.31", host = "10.8.0.100" },
-  # "master7" = { ip = "10.8.0.32", host = "10.8.0.101" }
+  "master6" = { ip = "10.8.0.31", host = "10.8.0.100" },
 }
 
 # 워커 추가 배포
 worker_vms = {
-  "worker04" = "10.8.0.41"
+  "worker04" = "10.8.0.41",
+  "worker05" = "10.8.0.42",
 }
