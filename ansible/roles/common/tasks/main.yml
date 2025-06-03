@@ -39,13 +39,18 @@
   become: true
   command: sysctl --system
 
+- name: Update apt cache (non-blocking)
+  apt:
+    update_cache: true
+  ignore_errors: true
+  changed_when: false
+
 - name: Install required packages
   become: true
   apt:
     name:
       - containerd
     state: present
-    update_cache: yes
 
 - name: Create containerd config directory
   become: true
@@ -113,6 +118,13 @@
   become: true
   apt:
     update_cache: yes
+  ignore_errors: true
+
+- name: Force apt update with shell
+  become: true
+  shell: apt-get update
+  register: apt_update_result
+  changed_when: "'Hit:' not in apt_update_result.stdout"
 
 - name: Install Kubernetes tools (kubelet, kubeadm, kubectl)
   become: true
