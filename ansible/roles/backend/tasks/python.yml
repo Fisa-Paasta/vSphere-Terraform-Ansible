@@ -1,4 +1,4 @@
-- name: Install Python build dependencies
+- name: Install Python build dependencies (including readline, lzma)
   become: true
   apt:
     name:
@@ -8,6 +8,9 @@
       - libncurses5-dev
       - libffi-dev
       - libsqlite3-dev
+      - libreadline-dev
+      - liblzma-dev
+      - libbz2-dev
       - wget
       - curl
       - llvm
@@ -24,15 +27,15 @@
   args:
     executable: /bin/bash
 
-- name: Ensure pyenv init in .bashrc
+- name: Ensure pyenv init lines exist in .bashrc
   become: false
-  lineinfile:
+  blockinfile:
     path: ~/.bashrc
-    line: |
-      export PATH="$HOME/.pyenv/bin:$PATH" && eval "$(pyenv init -)" && eval "$(pyenv virtualenv-init -)"
-    create: yes
-    state: present
-    insertafter: EOF
+    block: |
+      export PATH="$HOME/.pyenv/bin:$PATH"
+      eval "$(pyenv init -)"
+      eval "$(pyenv virtualenv-init -)"
+    marker: "# {mark} ANSIBLE MANAGED PYENV INIT"
 
 - name: Install Python {{ python_versions[python_selected] }} via pyenv
   become: false
@@ -44,3 +47,21 @@
     pyenv global {{ python_versions[python_selected] }}
   args:
     executable: /bin/bash
+
+- name: Apply pyenv to current shell for future tasks (force export)
+  become: false
+  shell: |
+    export PATH="$HOME/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+    echo "Applied pyenv environment in shell"
+  args:
+    executable: /bin/bash
+
+- name: Make python3.11 globally accessible
+  become: true
+  file:
+    src: "/home/ubuntu/.pyenv/versions/{{ python_versions[python_selected] }}/bin/python3.11"
+    dest: "/usr/local/bin/python3.11"
+    state: link
+    force: yes

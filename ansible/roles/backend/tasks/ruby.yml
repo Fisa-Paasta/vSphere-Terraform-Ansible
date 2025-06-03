@@ -1,10 +1,68 @@
-- name: Install Ruby (version {{ ruby_versions[ruby_selected] }})
-  become: true
+# roles/backend/tasks/ruby.yml
+
+- name: Install dependencies for Ruby build
+  apt:
+    name:
+      - build-essential
+      - libssl-dev
+      - libreadline-dev
+      - zlib1g-dev
+      - libyaml-dev
+      - libsqlite3-dev
+      - sqlite3
+      - libxml2-dev
+      - libxslt1-dev
+      - libcurl4-openssl-dev
+      - software-properties-common
+      - libffi-dev
+    state: present
+    update_cache: yes
+
+- name: Ensure rbenv is cloned
+  git:
+    repo: 'https://github.com/rbenv/rbenv.git'
+    dest: /home/ubuntu/.rbenv
+    update: no
+  become: false
+  become_user: ubuntu
+
+- name: Add rbenv to bashrc
+  lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: 'export PATH="$HOME/.rbenv/bin:$PATH" && eval "$(rbenv init -)"'
+    create: yes
+  become: false
+  become_user: ubuntu
+
+- name: Clone ruby-build
+  git:
+    repo: 'https://github.com/rbenv/ruby-build.git'
+    dest: /home/ubuntu/.rbenv/plugins/ruby-build
+    update: no
+  become: false
+  become_user: ubuntu
+
+- name: Install Ruby {{ ruby_versions[ruby_selected] }}
   shell: |
-    apt-get update
-    apt-get install -y gnupg2 software-properties-common
-    apt-add-repository -y ppa:brightbox/ruby-ng
-    apt-get update
-    apt-get install -y ruby{{ ruby_versions[ruby_selected] }}
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+    rbenv install -s {{ ruby_versions[ruby_selected] }}
+    rbenv global {{ ruby_versions[ruby_selected] }}
   args:
     executable: /bin/bash
+  become: false
+  become_user: ubuntu
+
+- name: Check installed Ruby version
+  shell: |
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+    ruby -v
+  args:
+    executable: /bin/bash
+  register: ruby_version_check
+  become: false
+  become_user: ubuntu
+
+- debug:
+    var: ruby_version_check.stdout

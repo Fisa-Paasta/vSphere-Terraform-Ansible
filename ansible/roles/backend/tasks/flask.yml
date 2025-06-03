@@ -1,5 +1,25 @@
-- name: Install Flask (version {{ flask_versions[flask_selected] }})
-  become: true
-  pip:
-    name: flask
-    version: "{{ flask_versions[flask_selected] }}"
+- name: Ensure Python and venv are installed for Flask
+  apt:
+    name:
+      - python3
+      - python3-venv
+      - python3-pip
+      - python3-full
+    state: present
+    update_cache: true
+
+- name: Create virtual environment for Flask
+  become_user: ubuntu
+  args:
+    creates: "/home/ubuntu/flask-venv"
+  shell: |
+    python3 -m venv /home/ubuntu/flask-venv
+
+- name: Install Flask {{ flask_versions[flask_selected] }} in virtualenv
+  become_user: ubuntu
+  shell: |
+    source /home/ubuntu/flask-venv/bin/activate
+    pip install flask=={{ flask_versions[flask_selected] }}
+  environment:
+    VIRTUAL_ENV: "/home/ubuntu/flask-venv"
+    PATH: "/home/ubuntu/flask-venv/bin:{{ ansible_env.PATH }}"

@@ -1,6 +1,27 @@
-- name: Install Ruby on Rails (version {{ rails_versions[rails_selected] }})
-  become: true
-  gem:
-    name: rails
-    version: "{{ rails_versions[rails_selected] }}"
-    state: present
+# roles/backend/tasks/rails.yml
+
+- name: Install bundler and rails {{ rails_versions[rails_selected] }}
+  shell: |
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+    gem install bundler
+    gem install rails -v {{ rails_versions[rails_selected] }}
+    rbenv rehash
+  args:
+    executable: /bin/bash
+  become: false
+  become_user: ubuntu
+
+- name: Check installed Rails version
+  shell: |
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+    rails -v
+  args:
+    executable: /bin/bash
+  register: rails_version_check
+  become: false
+  become_user: ubuntu
+
+- debug:
+    var: rails_version_check.stdout

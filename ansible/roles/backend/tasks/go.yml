@@ -1,9 +1,45 @@
-- name: Install Go (version {{ go_versions[go_selected] }})
+- name: Check if Go is already installed
+  command: go version
+  register: go_check
+  ignore_errors: true
+
+- name: Set Go full version string from go_versions map
+  set_fact:
+    go_full_version: "{{ go_versions[go_selected] }}"
+
+- name: Download Go tarball if not installed
+  when: go_check.rc != 0
+  get_url:
+    url: "https://go.dev/dl/{{ go_full_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/go.tar.gz"
+
+- name: Remove any existing Go installation
+  when: go_check.rc != 0
   become: true
-  shell: |
-    wget https://golang.org/dl/go{{ go_versions[go_selected] }}.linux-amd64.tar.gz
-    rm -rf /usr/local/go
-    tar -C /usr/local -xzf go{{ go_versions[go_selected] }}.linux-amd64.tar.gz
-    ln -sf /usr/local/go/bin/go /usr/bin/go
-  args:
-    executable: /bin/bash
+  file:
+    path: /usr/local/go
+    state: absent
+
+- name: Extract Go tarball
+  when: go_check.rc != 0
+  become: true
+  unarchive:
+    src: "/tmp/go.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+
+- name: Make Go binary globally accessible
+  become: true
+  file:
+    src: /usr/local/go/bin/go
+    dest: /usr/local/bin/go
+    state: link
+    force: true
+
+- name: Ensure /usr/local/go/bin is in PATH
+  become: false
+  lineinfile:
+    path: ~/.bashrc
+    line: 'export PATH=$PATH:/usr/local/go/bin'
+    insertafter: EOF
+    state: present

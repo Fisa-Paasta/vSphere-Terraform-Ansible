@@ -1,6 +1,24 @@
-- name: Install Go Echo (version {{ echo_versions[echo_selected] }})
-  become: true
+- name: Ensure echo_app directory exists
+  file:
+    path: /home/ubuntu/echo_app
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Initialize Go module for Echo
+  become: false
   shell: |
-    go install github.com/labstack/echo/v4@{{ echo_versions[echo_selected] }}
+    cd ~/echo_app
+    /usr/local/go/bin/go mod init echo_app
+  args:
+    executable: /bin/bash
+    creates: /home/ubuntu/echo_app/go.mod
+
+- name: Install Echo framework
+  become: false
+  shell: |
+    cd ~/echo_app
+    /usr/local/go/bin/go get github.com/labstack/echo/v{{ '2' if echo_selected.startswith('2') else '4' }}@{{ echo_versions[echo_selected] }}
   args:
     executable: /bin/bash

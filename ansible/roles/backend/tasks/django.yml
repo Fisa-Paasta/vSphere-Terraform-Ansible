@@ -1,5 +1,29 @@
-- name: Install Django (version {{ django_versions[django_selected] }})
-  become: true
-  pip:
-    name: django
-    version: "{{ django_versions[django_selected] }}"
+- name: Ensure Django virtualenv directory exists
+  file:
+    path: /home/ubuntu/django-venv
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Create Django virtualenv (if not exists)
+  become_user: ubuntu
+  shell: |
+    python3.11 -m venv /home/ubuntu/django-venv
+  args:
+    executable: /bin/bash
+    creates: /home/ubuntu/django-venv/bin/activate
+
+- name: Upgrade pip in Django virtualenv
+  become_user: ubuntu
+  shell: |
+    source /home/ubuntu/django-venv/bin/activate && pip install --upgrade pip
+  args:
+    executable: /bin/bash
+
+- name: Install Django (selected version)
+  become_user: ubuntu
+  shell: |
+    source /home/ubuntu/django-venv/bin/activate && pip install {{ django_versions[django_selected] }}
+  args:
+    executable: /bin/bash

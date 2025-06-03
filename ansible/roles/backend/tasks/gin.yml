@@ -1,6 +1,24 @@
-- name: Install Go Gin (version {{ gin_versions[gin_selected] }})
-  become: true
+- name: Ensure gin_app directory exists
+  file:
+    path: /home/ubuntu/gin_app
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Initialize Go module for Gin
+  become: false
   shell: |
-    go install github.com/gin-gonic/gin@{{ gin_versions[gin_selected] }}
+    cd ~/gin_app
+    /usr/local/go/bin/go mod init gin_app
+  args:
+    executable: /bin/bash
+    creates: /home/ubuntu/gin_app/go.mod
+
+- name: Install Gin framework
+  become: false
+  shell: |
+    cd ~/gin_app
+    /usr/local/go/bin/go get github.com/gin-gonic/gin@{{ gin_versions[gin_selected] }}
   args:
     executable: /bin/bash

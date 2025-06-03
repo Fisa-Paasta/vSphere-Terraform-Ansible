@@ -1,7 +1,36 @@
-- name: Install sdkman and Spring Boot CLI (version {{ spring_versions[spring_selected] }})
+---
+- name: Ensure unzip and zip are installed for sdkman
   become: true
+  apt:
+    name:
+      - unzip
+      - zip
+    state: present
+    update_cache: yes
+
+- name: Install sdkman if not installed
+  become: false
   shell: |
-    curl -s "https://get.sdkman.io" | bash
-    bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install springboot {{ spring_versions[spring_selected] }}"
+    if [ ! -d "$HOME/.sdkman" ]; then
+      curl -s "https://get.sdkman.io" | bash
+    fi
   args:
     executable: /bin/bash
+
+- name: Ensure sdkman init is in .bashrc
+  become: false
+  lineinfile:
+    path: ~/.bashrc
+    regexp: 'sdkman-init.sh'
+    line: '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"'
+    insertafter: EOF
+    state: present
+
+- name: Install Spring Boot {{ spring_versions[spring_selected] }} using sdkman
+  become: false
+  shell: |
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk install springboot {{ spring_versions[spring_selected] }} || sdk use springboot {{ spring_versions[spring_selected] }}
+  args:
+    executable: /bin/bash
+    creates: "$HOME/.sdkman/candidates/springboot/{{ spring_versions[spring_selected] }}"

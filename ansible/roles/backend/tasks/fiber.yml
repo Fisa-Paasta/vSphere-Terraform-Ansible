@@ -1,6 +1,24 @@
-- name: Install Go Fiber (version {{ fiber_versions[fiber_selected] }})
-  become: true
+- name: Ensure fiber_app directory exists
+  file:
+    path: /home/ubuntu/fiber_app
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Initialize Go module for Fiber
+  become: false
   shell: |
-    go install github.com/gofiber/fiber/v2@{{ fiber_versions[fiber_selected] }}
+    cd ~/fiber_app
+    /usr/local/go/bin/go mod init fiber_app
+  args:
+    executable: /bin/bash
+    creates: /home/ubuntu/fiber_app/go.mod
+
+- name: Install Fiber framework
+  become: false
+  shell: |
+    cd ~/fiber_app
+    /usr/local/go/bin/go get github.com/gofiber/fiber/{{ 'v2' if fiber_selected.startswith('2') else '' }}@{{ fiber_versions[fiber_selected] }}
   args:
     executable: /bin/bash
