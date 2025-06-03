@@ -8,6 +8,7 @@
 - name: master 조인
   hosts: masters
   become: true
-  roles:
-    - role: master
-      tasks_from: join
+  tasks:
+    - import_role:
+        name: master
+        tasks_from: join

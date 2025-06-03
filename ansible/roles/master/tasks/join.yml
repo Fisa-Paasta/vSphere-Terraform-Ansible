@@ -1,12 +1,14 @@
-# - name: Set master join command
-#   set_fact:
-#     kubeadm_master_join: "{{ hostvars[groups['kubejoin'][0]].join_command.stdout }} --control-plane --certificate-key {{ hostvars[groups['kubejoin'][0]].cert_key.stdout }}"
-- name: Set master join command
-  set_fact:
-    kubeadm_master_join: "{{ join_command.stdout }} --control-plane --certificate-key {{ cert_key.stdout }}"
-
-- name: Join master to Kubernetes cluster (control-plane)
+- name: Join master to Kubernetes cluster
   become: true
-  shell: "{{ kubeadm_master_join }}"
+  shell: "{{ hostvars['localhost']['kubeadm_master_join'] }}"
   args:
     executable: /bin/bash
+
+# - name: Label master node with control-plane role
+#   delegate_to: "{{ hostvars[inventory_hostname]['first_alive_master'] }}"
+#   become: true
+#   shell: |
+#     KUBECONFIG=/etc/kubernetes/admin.conf \
+#     kubectl label node {{ inventory_hostname }} node-role.kubernetes.io/control-plane=control-plane --overwrite
+#   args:
+#     executable: /bin/bash
