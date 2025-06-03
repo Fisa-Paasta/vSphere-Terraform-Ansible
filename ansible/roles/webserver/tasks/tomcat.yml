@@ -1,8 +1,37 @@
-- name: Install Tomcat (version {{ tomcat_versions[tomcat_selected] }})
-  become: true
-  shell: |
-    mkdir -p /opt/tomcat
-    wget https://downloads.apache.org/tomcat/tomcat-{{ tomcat_selected | regex_replace('\\..*$', '') }}/v{{ tomcat_versions[tomcat_selected] }}/bin/apache-tomcat-{{ tomcat_versions[tomcat_selected] }}.tar.gz
-    tar xzf apache-tomcat-{{ tomcat_versions[tomcat_selected] }}.tar.gz -C /opt/tomcat --strip-components=1
-  args:
-    executable: /bin/bash
+- name: Create Tomcat installation directory
+  file:
+    path: /opt/tomcat
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Download Tomcat tar.gz
+  get_url:
+    url: "https://archive.apache.org/dist/tomcat/tomcat-{{ tomcat_versions[tomcat_selected].split('.')[0] }}/v{{ tomcat_versions[tomcat_selected] }}/bin/apache-tomcat-{{ tomcat_versions[tomcat_selected] }}.tar.gz"
+    dest: "/opt/tomcat/apache-tomcat-{{ tomcat_versions[tomcat_selected] }}.tar.gz"
+    mode: '0644'
+
+- name: Extract Tomcat
+  unarchive:
+    src: "/opt/tomcat/apache-tomcat-{{ tomcat_versions[tomcat_selected] }}.tar.gz"
+    dest: /opt/tomcat
+    remote_src: yes
+
+- name: Remove existing 'latest' symlink if it exists
+  file:
+    path: /opt/tomcat/latest
+    state: absent
+  ignore_errors: yes
+
+- name: Create 'latest' symlink to extracted Tomcat
+  file:
+    src: "/opt/tomcat/apache-tomcat-{{ tomcat_versions[tomcat_selected] }}"
+    dest: /opt/tomcat/latest
+    state: link
+
+- name: Make Tomcat scripts executable
+  file:
+    path: "/opt/tomcat/latest/bin/"
+    recurse: yes
+    mode: '0755'

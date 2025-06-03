@@ -1,12 +1,20 @@
-- name: Install Nginx (version {{ nginx_versions[nginx_selected] }})
-  become: true
+- name: Install Nginx from source
   shell: |
-    apt-get update
-    apt-get install -y curl gnupg2 ca-certificates lsb-release
-    curl https://nginx.org/keys/nginx_signing.key | apt-key add -
-    echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
-      > /etc/apt/sources.list.d/nginx.list
-    apt-get update
-    apt-get install -y nginx={{ nginx_versions[nginx_selected] }}
+    mkdir -p /opt/nginx
+    cd /opt/nginx
+    curl -LO http://nginx.org/download/nginx-{{ nginx_versions[nginx_selected] }}.tar.gz
+    tar -xzf nginx-{{ nginx_versions[nginx_selected] }}.tar.gz
+    cd nginx-{{ nginx_versions[nginx_selected] }}
+    apt-get update && apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g-dev libssl-dev
+    ./configure --prefix=/opt/nginx
+    make
+    make install
   args:
     executable: /bin/bash
+
+- name: Symlink nginx binary to /usr/local/bin
+  file:
+    src: /opt/nginx/sbin/nginx
+    dest: /usr/local/bin/nginx
+    state: link
+    force: true

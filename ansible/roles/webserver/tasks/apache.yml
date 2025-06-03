@@ -1,6 +1,15 @@
-- name: Install Apache HTTP Server (version {{ apache_versions[apache_selected] }})
-  become: true
-  apt:
-    name: apache2
-    state: present
-    update_cache: yes
+- name: Install Apache from official source ({{ apache_versions[apache_selected] }})
+  shell: |
+    set -e
+    mkdir -p /opt/apache
+    cd /opt/apache
+    curl -LO https://downloads.apache.org/httpd/httpd-{{ apache_versions[apache_selected] }}.tar.gz
+    tar -xzf httpd-{{ apache_versions[apache_selected] }}.tar.gz
+    cd httpd-{{ apache_versions[apache_selected] }}
+    apt-get update
+    apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g-dev libssl-dev libapr1-dev libaprutil1-dev
+    ./configure --enable-so --enable-ssl --with-mpm=event
+    make -j$(nproc)
+    make install
+  args:
+    executable: /bin/bash
