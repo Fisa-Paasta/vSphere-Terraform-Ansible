@@ -3,7 +3,10 @@ import json
 import subprocess
 import os
 
-output = subprocess.check_output(["terraform", "output", "-json"], cwd="../terraform-vsphere")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+terraform_dir = os.path.abspath(os.path.join(script_dir, "../../terraform-vsphere"))
+
+output = subprocess.check_output(["terraform", "output", "-json"], cwd=terraform_dir)
 parsed = json.loads(output)
 
 masters = parsed.get("master_ips", {}).get("value", {})
@@ -11,8 +14,9 @@ workers = parsed.get("worker_ips", {}).get("value", {})
 
 # kubejoin은 수동으로 설정한 경우
 kubejoin_hosts = {
-    "master1": "192.168.0.11",
-    "master2": "192.168.0.12"
+    "master1": "10.8.0.11",
+    "master2": "10.8.0.12",
+    "master3": "10.8.0.13"
 }
 
 ssh_user = "ubuntu"
