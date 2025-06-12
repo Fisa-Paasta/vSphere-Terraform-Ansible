@@ -26,9 +26,9 @@ variable "resource_pool_name" {
 #   type = string
 # }
 
-# variable "template_master" {
-#   type = string
-# }
+variable "template_master" {
+  type = string
+}
 
 variable "template_worker" {
   type = string

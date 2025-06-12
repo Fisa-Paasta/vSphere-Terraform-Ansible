@@ -1,7 +1,7 @@
 terraform {
-  required_providers {
+  required_providers { // 어디서 다운로드할지 지정
     vsphere = {
-      source  = "hashicorp/vsphere"
+      source  = "hashicorp/vsphere" // "vmware/vsphere"
       version = ">= 2.2.0"
     }
   }
@@ -17,8 +17,8 @@ module "masters" {
   resource_pool_id = each.value.host == "10.8.0.100" ? data.vsphere_host.esxi_100.resource_pool_id : data.vsphere_host.esxi_101.resource_pool_id
   datastore        = data.vsphere_datastore.master_datastore
   network          = data.vsphere_network.master_network
-  template         = data.vsphere_virtual_machine.master_template // 임시 값인 worker_template
-  cpu              = 2
+  template         = data.vsphere_virtual_machine.master_template
+  cpu              = 4
   memory           = 4096
   ssh_key          = var.ssh_key
 }
@@ -34,7 +34,7 @@ module "workers" {
   datastore        = data.vsphere_datastore.worker_datastore
   network          = data.vsphere_network.worker_network
   template         = data.vsphere_virtual_machine.worker_template
-  cpu              = 2
+  cpu              = 4
   memory           = 4096
   ssh_key          = var.ssh_key
 }
