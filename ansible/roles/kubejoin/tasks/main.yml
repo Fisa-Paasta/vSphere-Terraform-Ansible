@@ -1,26 +1,62 @@
 - name: Set list of masters
   set_fact:
-    masters: "{{ groups['masters'] }}"
+    masters: "{{ groups['kubejoin'] }}"
 
 - name: Ping each master to find a live one
   shell: ping -c 1 {{ item }}
   register: ping_results
   with_items: "{{ masters }}"
   ignore_errors: true
+  run_once: true
 
-- name: Set first alive master
-  set_fact:
-    first_alive_master: "{{ item.item }}"
-  when: item.rc == 0 and first_alive_master is not defined
+# 첫 번째 살아있는 master 값을 그룹에 저장
+- name: Add the first alive master to a temp group
+  add_host:
+    name: "{{ item.item }}"
+    groups: propagated_first_master
+  when: item.rc == 0
   with_items: "{{ ping_results.results }}"
+  run_once: true
 
-- name: Get kubeadm worker join command
+# 모든 호스트에게 first_alive_master 변수 전달
+- name: Broadcast first_alive_master to all nodes
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  set_fact:
+    first_alive_master: "{{ groups['propagated_first_master'][0] }}"
+  loop: "{{ groups['all'] }}"
+  ignore_unreachable: true
+
+- name: Show selected alive master
+  debug:
+    msg: "Selected first alive master: {{ first_alive_master }}"
+  run_once: true
+
+- name: Get kubeadm worker join command from first alive master
   delegate_to: "{{ first_alive_master }}"
   command: kubeadm token create --print-join-command
   register: join_command
+  run_once: true
+
+- name: Set worker join command globally
+  delegate_to: localhost
+  delegate_facts: true
+  set_fact:
+    kubeadm_worker_join: "{{ join_command.stdout }}"
+  run_once: true
 
 - name: Get kubeadm certificate key (for control-plane join)
+  become: true
   delegate_to: "{{ first_alive_master }}"
   shell: |
-    kubeadm init phase upload-certs --upload-certs | grep -A 1 "certificate key" | tail -n 1
+    kubeadm init phase upload-certs --upload-certs 2>&1 | tee /tmp/cert_key.log | awk '/Using certificate key:/{getline; print $1}'
   register: cert_key
+  changed_when: false
+  run_once: true
+
+- name: Set master join command globally
+  delegate_to: localhost
+  delegate_facts: true
+  set_fact:
+    kubeadm_master_join: "{{ join_command.stdout }} --control-plane --certificate-key {{ cert_key.stdout_lines[0] }}"
+  run_once: true
