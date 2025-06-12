@@ -45,12 +45,42 @@
   ignore_errors: true
   changed_when: false
 
+- name: Update apt cache with retry and hash fix
+  become: true
+  block:
+    - name: Try apt update directly
+      apt:
+        update_cache: yes
+      register: apt_update_result
+      failed_when: >
+        ('Hash Sum mismatch' in (apt_update_result.stdout | default(''))) or
+        ('Hash Sum mismatch' in (apt_update_result.stderr | default(''))) or
+        (apt_update_result.failed | default(false))
+      retries: 2
+      delay: 3
+      until: apt_update_result is succeeded
+
+  rescue:
+    - name: Clean APT cache
+      shell: |
+        rm -rf /var/lib/apt/lists/*
+        apt clean
+      args:
+        executable: /bin/bash
+
+    - name: Force apt-get update with gzip compression
+      shell: |
+        apt-get update -o Acquire::CompressionTypes::Order::=gz
+      args:
+        executable: /bin/bash
+
 - name: Install required packages
   become: true
   apt:
     name:
       - containerd
     state: present
+    update_cache: false
 
 - name: Create containerd config directory
   become: true
@@ -79,14 +109,35 @@
     state: restarted
     enabled: yes
 
-- name: Install Kubernetes APT dependencies
+- name: Install Kubernetes APT dependencies with retry
   become: true
-  apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-    state: present
-    update_cache: yes
+  block:
+    - name: Install dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+        state: present
+        update_cache: no
+      register: apt_dep_result
+      failed_when: >
+        ('Hash Sum mismatch' in (apt_dep_result.stdout | default(''))) or
+        ('Hash Sum mismatch' in (apt_dep_result.stderr | default(''))) or
+        (apt_dep_result.failed | default(false))
+      retries: 2
+      delay: 3
+      until: apt_dep_result is succeeded
+
+  rescue:
+    - name: Retry install dependencies after cleaning cache
+      shell: |
+        rm -rf /var/lib/apt/lists/*
+        apt clean
+        apt-get update
+        apt-get install -y apt-transport-https ca-certificates
+      args:
+        executable: /bin/bash
+
 
 - name: Create apt keyrings directory
   become: true
@@ -122,7 +173,7 @@
 
 - name: Force apt update with shell
   become: true
-  shell: apt-get update
+  shell: apt-get update -o Acquire::CompressionTypes::Order::=gz || true
   register: apt_update_result
   changed_when: "'Hit:' not in apt_update_result.stdout"
 
