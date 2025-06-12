@@ -1,9 +1,18 @@
-- name: Install Cassandra (version {{ cassandra_versions[cassandra_selected] }})
+- name: Add Cassandra GPG key
+  apt_key:
+    url: https://downloads.apache.org/cassandra/KEYS
+    state: present
   become: true
-  shell: |
-    echo "deb https://downloads.apache.org/cassandra/debian 311x main" > /etc/apt/sources.list.d/cassandra.list
-    curl https://downloads.apache.org/cassandra/KEYS | apt-key add -
-    apt-get update
-    apt-get install -y cassandra
-  args:
-    executable: /bin/bash
+
+- name: Add Cassandra repository
+  apt_repository:
+    repo: "deb https://downloads.apache.org/cassandra/debian {{ cassandra_selected }} main"
+    state: present
+    filename: "cassandra"
+  become: true
+
+- name: Install Cassandra {{ cassandra_versions[cassandra_selected] }}
+  apt:
+    name: "{{ cassandra_versions[cassandra_selected] }}"
+    state: present
+  become: true

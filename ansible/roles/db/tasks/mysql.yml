@@ -1,6 +1,19 @@
-- name: Install MySQL (version {{ mysql_versions[mysql_selected] }})
-  become: true
+- name: Download MySQL APT config with wget
+  ansible.builtin.shell: |
+    wget -O /tmp/mysql-apt-config.deb https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
+  args:
+    executable: /bin/bash
+
+- name: Install MySQL APT config non-interactively
+  shell: DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/mysql-apt-config.deb
+  register: dpkg_install
+  ignore_errors: true
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install MySQL {{ mysql_versions[mysql_selected] }}
   apt:
     name: "{{ mysql_versions[mysql_selected] }}"
     state: present
-    update_cache: yes

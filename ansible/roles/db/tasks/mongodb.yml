@@ -1,9 +1,26 @@
-- name: Install MongoDB (version {{ mongodb_versions[mongodb_selected] }})
-  become: true
-  shell: |
-    curl -fsSL https://pgp.mongodb.com/server-{{ mongodb_versions[mongodb_selected] }}.asc | gpg --dearmor -o /usr/share/keyrings/mongodb.gpg
-    echo "deb [signed-by=/usr/share/keyrings/mongodb.gpg] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/{{ mongodb_versions[mongodb_selected] }} multiverse" > /etc/apt/sources.list.d/mongodb-org.list
-    apt-get update
-    apt-get install -y mongodb-org
-  args:
-    executable: /bin/bash
+- name: Import MongoDB public key
+  apt_key:
+    url: https://pgp.mongodb.com/server-{{ mongodb_selected }}.asc
+    state: present
+
+- name: Add MongoDB APT repository
+  apt_repository:
+    repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release | lower }}/mongodb-org/{{ mongodb_selected }} multiverse"
+    state: present
+    filename: mongodb-org
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install MongoDB {{ mongodb_versions[mongodb_selected] }}
+  apt:
+    name:
+      - mongodb-org={{ mongodb_versions[mongodb_selected] }}*
+      - mongodb-org-server={{ mongodb_versions[mongodb_selected] }}*
+      - mongodb-org-shell={{ mongodb_versions[mongodb_selected] }}*
+      - mongodb-org-mongos={{ mongodb_versions[mongodb_selected] }}*
+      - mongodb-org-tools={{ mongodb_versions[mongodb_selected] }}*
+    state: present
+    allow_downgrade: yes
